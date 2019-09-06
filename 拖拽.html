@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>拖拽上传</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+        }
+
+        #box {
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        #tips {
+            height: 500px;
+            background-color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">
+        <div id='tips'>请把图片拖放到该区域</div>
+        <div id="info">
+            当前累计图片<span id='num'>0</span>张,
+            一共<span id='size'>0</span>M<br>
+            <input type="file" multiple>
+        </div>
+    </div>
+    <script src="./js/jquery-3.4.1.js"></script>
+    <script>
+        var oTips = document.getElementById('tips');
+        var oNum = document.getElementById('num');
+        var oSize = document.getElementById('size');
+        var oInput = document.querySelector('input');
+        var imgArr = [];
+
+        oTips.addEventListener('dragenter', function () {
+            if (this.innerText == '请把图片拖放到该区域') {
+                this.innerText = '';
+            }
+        })
+
+        oTips.addEventListener('dragover', function (e) {
+            e.preventDefault();
+        })
+
+        oTips.addEventListener('drop', function (e) {
+            e.preventDefault();
+
+            var files = e.dataTransfer.files
+            appendImg(files);
+            count();
+
+        })
+
+        oInput.onchange = function () {
+            if (oTips.innerText == '请把图片拖放到该区域') {
+                oTips.innerText = '';
+            }
+            var files = this.files;
+            appendImg(files)
+            count();
+            console.dir(oInput);
+        }
+
+        function appendImg(files) {
+            for (var i = 0; i < files.length; i++) {
+                var blob = new Blob([files[i]]);
+                imgArr.push(files[i])
+                var url = URL.createObjectURL(blob)
+
+                var oImg = new Image();
+                oImg.src = url;
+                oImg.width = 200;
+                oImg.height = 200;
+                oImg.onload = function () {
+                    oTips.appendChild(this);
+                }
+            }
+        }
+
+        function count() {
+            oNum.innerText = imgArr.length;
+            var result = imgArr.reduce((prev, next) => prev + next.size, 0) / 1024 / 1024;
+            oSize.innerText = result.toFixed(2);
+        }
+    </script>
+</body>
+
+</html>
